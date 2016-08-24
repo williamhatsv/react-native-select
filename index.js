@@ -1,5 +1,9 @@
 'use strict';
-import React from 'react';
+import React, {
+  Component,
+  PropTypes,
+} from 'react';
+
 import {
   StyleSheet,
   Modal,
@@ -12,7 +16,7 @@ import {
   View
 } from 'react-native';
 
-export default class Select extends React.Component {
+export default class Select extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -41,7 +45,7 @@ export default class Select extends React.Component {
   }
 
   _renderAndroid() {
-    const { options=this.props.models, selectedKey, onChange, style, labelStyle, ...other } = this.props;
+    const { options, selectedKey, onChange, style, labelStyle, ...other } = this.props;
 
     return (
       <View style={[styles.selectContainer, style]} {...other}>
@@ -67,15 +71,16 @@ export default class Select extends React.Component {
   }
 
   _renderIOS() {
-    const { options=this.props.models, selectedKey, onChange, style, labelStyle, doneLabel, doneLabelColor, ...other } = this.props;
+    const { options, selectedKey, onChange, style, labelStyle, doneLabel, doneLabelColor,
+            cancelLabel, cancelLabelColor, ...other } = this.props;
     var modalBackgroundStyle = {
-      backgroundColor: 'transparent',
+      backgroundColor: '#00000077',
     };
     var innerContainerTransparentStyle = null;
     return (
       <View style={[styles.selectContainer, style]} {...other}>
-        <Text style={labelStyle} onPress={this._setModalVisible.bind(this, true)}>
-          {options[this.state.selectedKey] ? options[this.state.selectedKey].label : ""}
+        <Text style={[labelStyle, !options[this.state.selectedKey]&&{color: this.props.placeholderTextColor}]} onPress={this._setModalVisible.bind(this, true)}>
+          {options[this.state.selectedKey] ? options[this.state.selectedKey].label : this.props.placeholder}
         </Text>
         <Modal
           animationType="slide"
@@ -85,11 +90,20 @@ export default class Select extends React.Component {
           <TouchableWithoutFeedback onPress={this._setModalVisible.bind(this, false)}>
             <View style={[styles.container, modalBackgroundStyle]}>
               <View style={styles.pickerBar}>
-                <Text
-                  style={{color: doneLabelColor}}
-                  onPress={this._close.bind(this)}>
-                  {doneLabel || "完成"}
-                </Text>
+                <View style={styles.buttonCancelView}>
+                  <Text
+                    style={[styles.buttonCancelText ,{color: cancelLabelColor || "#777777"}]}
+                    onPress={this._setModalVisible.bind(this, false)}>
+                    {cancelLabel || 'Cancel'}
+                  </Text>
+                </View>
+                <View style={styles.buttonConfirmView}>
+                  <Text
+                    style={[styles.buttonConfirmText ,{color: doneLabelColor || "#46cf98"}]}
+                    onPress={this._close.bind(this)}>
+                    {doneLabel || 'Confirm'}
+                  </Text>
+                </View>
               </View>
               <View onStartShouldSetResponder={ (evt) => true }
                     onResponderReject={ (evt) => {} }
@@ -141,14 +155,32 @@ var styles = StyleSheet.create({
     width: Dimensions.get('window').width,
     alignItems: 'center',
     paddingVertical: 0,
-    backgroundColor: '#ccc'
+    backgroundColor: '#ffffff'
   },
   pickerBar: {
     width: Dimensions.get('window').width,
-    justifyContent: 'flex-end',
+    // justifyContent: 'flex-end',
     flexDirection: 'row',
-    padding: 7,
-    backgroundColor: '#ececec'
+    padding: 13,
+    paddingRight: 20,
+    paddingLeft: 20,
+    backgroundColor: '#ffffff',
+    borderBottomWidth: 1,
+    borderBottomColor: '#bbbbbb',
+  },
+  buttonCancelView: {
+    flex: 1,
+  },
+  buttonConfirmView: {
+    flex: 1,
+  },
+  buttonCancelText: {
+    fontSize: 18,
+    textAlign: 'left',
+  },
+  buttonConfirmText: {
+    fontSize: 18,
+    textAlign: 'right',
   },
   pickerIOS: {
     marginTop: 0,
@@ -166,3 +198,4 @@ var styles = StyleSheet.create({
     opacity: 0
   }
 });
+
